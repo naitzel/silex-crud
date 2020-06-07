@@ -1,0 +1,20 @@
+<IfModule mod_env.c>
+    SetEnv DATABASE_NAME develop
+    SetEnv DATABASE_USER develop
+    SetEnv DATABASE_PASS develop
+    SetEnv DATABASE_HOST 127.0.0.1
+    SetEnv MAILER_HOST host
+    SetEnv MAILER_PORT 25
+    SetEnv MAILER_USERNAME username
+    SetEnv MAILER_PASSWORD password
+    SetEnv MAILER_FROM mail
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    Options -MultiViews
+
+    RewriteEngine On
+    RewriteBase /
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>

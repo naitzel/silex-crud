@@ -87,8 +87,8 @@
                            <tr id="order-{{ item.id }}">
                               <td>{{ item.id }}</td>
                               <td>{{ item.title }}</td>
-                              <td>{{ item.show_in|date('d/m/Y h:i:s') }}</td>
-                              <td>{{ item.show_out|date('d/m/Y h:i:s') }}</td>
+                              <td>{{ item.show_in ? item.show_in|date('d/m/Y h:i:s') : ' - ' }}</td>
+                              <td>{{ item.show_out ? item.show_out|date('d/m/Y h:i:s') : ' - ' }}</td>
                               <td>
                                  {% if item.enabled %}
                                     <span class="label label-success">Habilitado</span>

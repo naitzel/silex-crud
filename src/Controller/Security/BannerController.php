@@ -14,13 +14,21 @@ use Symfony\Component\Filesystem\Filesystem;
 class BannerController extends ContainerAware
 {
     /**
+     * @return \Adris\SilexCrud\Service\BannerService
+     */
+    private function getService()
+    {
+        return $this->get('service.banner');
+    }
+
+    /**
      * Lista.
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function indexAction(array $banner_type)
     {
-        $banner = $this->db()->fetchAll('SELECT * FROM `banner` WHERE `type` = ? ORDER BY `order` ASC', array($banner_type['id']));
+        $banner = $this->getService()->findAll($banner_type['id']);
 
         return $this->render('list.twig', array(
             'data' => $banner,
@@ -94,7 +102,7 @@ class BannerController extends ContainerAware
      */
     public function editAction(Request $request, array $banner_type, $id)
     {
-        $banner = $this->get('db')->fetchAssoc('SELECT * FROM `banner` WHERE `id` = ? LIMIT 1;', array($id));
+        $banner = $this->getService()->findById($id);
 
         if ($banner === false) {
             $this->flashMessage()->add('warning', array('message' => 'Desculpe, mais a pagina não foi encontrada.'));
@@ -159,19 +167,12 @@ class BannerController extends ContainerAware
     public function deleteAction(Request $request, array $banner_type)
     {
         $id = $request->request->get('id');
-        $row_sql = $this->get('db')->fetchAssoc('SELECT * FROM `banner` WHERE `id` = ? LIMIT 1;', array($id));
+        $row_sql = $this->getService()->findById($id);
 
         if ($row_sql === false) {
             $this->flashMessage()->add('warning', array('message' => 'Desculpe, mais não foi encontrado.'));
         } else {
-            $file_name = web_path('upload/banner').'/'.$row_sql['image'];
-
-            $fs = new Filesystem();
-            if ($fs->exists($file_name)) {
-                $fs->remove($file_name);
-            }
-
-            $this->get('db')->executeUpdate('DELETE FROM `banner` WHERE `id` = ?', array($id));
+            $this->get('db')->executeUpdate('UPDATE `banner` SET `deleted_at` = NOW() WHERE `id` = ?', array($id));
 
             $this->flashMessage()->add('success', array('message' => 'Deletado com sucesso.'));
         }

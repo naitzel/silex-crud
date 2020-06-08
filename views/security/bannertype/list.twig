@@ -120,10 +120,6 @@
                                           </div>
                                           <div class="modal-body">
                                              {{ macro.info(item) }}
-
-                                             <div class="alert alert-danger">
-                                                <strong><i class="fa fa-exclamation-triangle"></i></strong> Os Banner serão deletados e não poderá ser desfeito.
-                                             </div>
                                           </div>
                                           <div class="modal-footer">
                                              <form action="{{ path("s_banner_type_delete", { 'id': item.id }) }}" method="post">

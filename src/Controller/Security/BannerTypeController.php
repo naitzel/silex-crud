@@ -13,13 +13,21 @@ use Symfony\Component\HttpFoundation\Request;
 class BannerTypeController extends ContainerAware
 {
     /**
+     * @return \Adris\SilexCrud\Service\BannerTypeService
+     */
+    private function getService()
+    {
+        return $this->get('service.banner_type');
+    }
+
+    /**
      * Lista.
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function indexAction()
     {
-        $banner_type = $this->db()->fetchAll('SELECT * FROM `banner_type`');
+        $banner_type = $this->getService()->findAll();
 
         foreach ($banner_type as $key => $bnty) {
             $banner_type[$key]['total_banner'] = (int) $this->db()->fetchAssoc('SELECT COUNT(1) as total FROM `banner` WHERE `type` = ?;', array($bnty['id']))['total'];
@@ -75,7 +83,7 @@ class BannerTypeController extends ContainerAware
      */
     public function editAction(Request $request, $id)
     {
-        $banner_type = $this->get('db')->fetchAssoc('SELECT * FROM `banner_type` WHERE `id` = ? LIMIT 1;', array($id));
+        $banner_type = $this->getService()->findById($id);
 
         if ($banner_type === false) {
             $this->flashMessage()->add('warning', array('message' => 'Desculpe, mais a pagina não foi encontrada.'));
@@ -119,24 +127,13 @@ class BannerTypeController extends ContainerAware
     public function deleteAction(Request $request)
     {
         $id = $request->request->get('id');
-        $row_sql = $this->get('db')->fetchAssoc('SELECT * FROM `banner_type` WHERE `id` = ? LIMIT 1;', array($id));
+        $row_sql = $this->getService()->findById($id);
 
         if ($row_sql === false) {
             $this->flashMessage()->add('warning', array('message' => 'Desculpe, mais não foi encontrado.'));
         } else {
-            $banners = $this->db()->fetchAll('SELECT * FROM `banner` WHERE `type` = ?', array($row_sql['id']));
-            foreach ($banners as $banner) {
-                $file_name = __DIR__.'/../../../public/upload/banner/'.$banner['image'];
-
-                $fs = new Filesystem();
-                if ($fs->exists($file_name)) {
-                    $fs->remove($file_name);
-                }
-
-                $this->get('db')->executeUpdate('DELETE FROM `banner` WHERE `id` = ?', array($banner['id']));
-            }
-
-            $this->get('db')->executeUpdate('DELETE FROM `banner_type` WHERE `id` = ?', array($id));
+            $this->get('db')->executeUpdate('UPDATE `banner_type` SET `deleted_at` = NOW() WHERE `id` = ?', array($id));
+            $this->get('db')->executeUpdate('UPDATE `banner` SET `deleted_at` = NOW() WHERE `type` = ?', array($id));
 
             $this->flashMessage()->add('success', array('message' => 'Deletado com sucesso.'));
         }

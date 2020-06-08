@@ -92,9 +92,13 @@ if ($app['debug']) {
 
 $app->register(new Adris\SilexCrud\Provider\TwigExtensionProvider());
 
-//
+// Serviço Institucional
 $app->register(new \Adris\SilexCrud\Provider\InstitutionalProvider());
 $app->register(new \Adris\SilexCrud\Provider\InstitutionalTypeProvider());
+
+// Serviço Banner
+$app->register(new \Adris\SilexCrud\Provider\BannerProvider());
+$app->register(new \Adris\SilexCrud\Provider\BannerTypeProvider());
 
 if (!defined('CONSOLE')) {
     // http://silex.sensiolabs.org/doc/providers/security.html

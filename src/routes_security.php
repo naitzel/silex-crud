@@ -7,8 +7,8 @@
 // Routes Security
 $security = $app['controllers_factory'];
 
-$security->get('/', 'Security\Security::index'); // Dashboard
-$security->get('/login', 'Security\Security::login'); // Login
+$security->get('/', 'Security\Security::index')->bind('s_dashboard'); // Dashboard
+$security->get('/login', 'Security\Security::login')->bind('s_login'); // Login
 
 // Roles
 $security->match('roles', 'Security\Role::index')->method('GET|POST')->bind('s_role');

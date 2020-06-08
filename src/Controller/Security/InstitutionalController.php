@@ -13,13 +13,21 @@ use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 class InstitutionalController extends ContainerAware
 {
     /**
+     * @return \Adris\SilexCrud\Service\InstitutionalService
+     */
+    private function getService()
+    {
+        return $this->get('service.institutional');
+    }
+
+    /**
      * Lista.
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function indexAction(array $institutional_type)
     {
-        $institutional = $this->db()->fetchAll('SELECT * FROM `institutional` WHERE `type` = ?', array($institutional_type['id']));
+        $institutional = $this->getService()->findAll($institutional_type['id']);
 
         return $this->render('list.twig', array(
             'data' => $institutional,
@@ -82,7 +90,7 @@ class InstitutionalController extends ContainerAware
      */
     public function editAction(Request $request, array $institutional_type, $id)
     {
-        $institutional = $this->get('db')->fetchAssoc('SELECT * FROM `institutional` WHERE `id` = ? LIMIT 1;', array($id));
+        $institutional = $this->getService()->findById($id);
 
         if ($institutional === false) {
             $this->flashMessage()->add('warning', array('message' => 'Desculpe, mais a pagina não foi encontrada.'));
@@ -132,12 +140,12 @@ class InstitutionalController extends ContainerAware
     public function deleteAction(Request $request, array $institutional_type)
     {
         $id = $request->request->get('id');
-        $row_sql = $this->get('db')->fetchAssoc('SELECT * FROM `institutional` WHERE `id` = ? LIMIT 1;', array($id));
+        $row_sql = $this->getService()->findById($id);
 
         if ($row_sql === false) {
             $this->flashMessage()->add('warning', array('message' => 'Desculpe, mais não foi encontrado.'));
         } else {
-            $this->get('db')->executeUpdate('DELETE FROM `institutional` WHERE `id` = ?', array($id));
+            $this->get('db')->executeUpdate('UPDATE `institutional` SET `deleted_at` = NOW() WHERE `id` = ?', array($id));
 
             $this->flashMessage()->add('success', array('message' => 'Deletado com sucesso.'));
         }

@@ -13,13 +13,22 @@ use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 class InstitutionalTypeController extends ContainerAware
 {
     /**
+     * @return \Adris\SilexCrud\Service\InstitutionalTypeService
+     */
+    private function getService()
+    {
+        return $this->get('service.institutional_type');
+    }
+
+    /**
      * Lista.
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function indexAction()
     {
-        $institutional_type = $this->db()->fetchAll('SELECT * FROM `institutional_type`');
+        $institutional_type = $this->getService()->findAll();
+
 
         foreach ($institutional_type as $key => $bnty) {
             $institutional_type[$key]['total_institucional'] = (int) $this->db()->fetchAssoc('SELECT COUNT(1) as total FROM `institutional` WHERE `type` = ?;', array($bnty['id']))['total'];
@@ -81,7 +90,7 @@ class InstitutionalTypeController extends ContainerAware
      */
     public function editAction(Request $request, $id)
     {
-        $institutional_type = $this->get('db')->fetchAssoc('SELECT * FROM `institutional_type` WHERE `id` = ? LIMIT 1;', array($id));
+        $institutional_type = $this->getService()->findById($id);
 
         if ($institutional_type === false) {
             $this->flashMessage()->add('warning', array('message' => 'Desculpe, mais a pagina não foi encontrada.'));
@@ -131,12 +140,13 @@ class InstitutionalTypeController extends ContainerAware
     public function deleteAction(Request $request)
     {
         $id = $request->request->get('id');
-        $row_sql = $this->get('db')->fetchAssoc('SELECT * FROM `institutional_type` WHERE `id` = ? LIMIT 1;', array($id));
+        $row_sql = $this->getService()->findById($id);
 
         if ($row_sql === false) {
             $this->flashMessage()->add('warning', array('message' => 'Desculpe, mais não foi encontrado.'));
         } else {
-            $this->get('db')->executeUpdate('DELETE FROM `institutional_type` WHERE `id` = ?', array($id));
+            $this->get('db')->executeUpdate('UPDATE `institutional_type` SET `deleted_at` = NOW() WHERE `id` = ?', array($id));
+            $this->get('db')->executeUpdate('UPDATE `institutional` SET `deleted_at` = NOW() WHERE `type` = ?', array($id));
 
             $this->flashMessage()->add('success', array('message' => 'Deletado com sucesso.'));
         }

@@ -15,6 +15,6 @@ $route->get('img/{path}/{imagem}', function (Silex\Application $app, Symfony\Com
     return $app['glide']->outputImage(sprintf('%s/%s', $path, $imagem), $request->query->all());
 })->bind('imagem');
 
-$route->get('/', 'Home::index');
+$route->get('/', 'Home::index')->bind('web_home');
 
 return $route;

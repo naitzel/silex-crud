@@ -1,0 +1,6 @@
+docker
+var/logs
+var/cache
+docs
+.prettierrc
+README.md

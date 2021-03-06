@@ -1,5 +1,5 @@
 # Install packages composer
-FROM composer:1.9 as build
+FROM composer:latest as build
 
 WORKDIR /composer
 

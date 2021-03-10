@@ -13,5 +13,4 @@ FROM nginx:alpine
 
 WORKDIR /var/www/html/public
 
-COPY public .
 COPY --from=build /bower/bower_components lib
